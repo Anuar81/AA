@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import com.anuar81.lucasscamp.R
 import com.anuar81.lucasscamp.databinding.HomeFragmentBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,11 +36,20 @@ class HomeFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         // TODO: Use the ViewModel
         viewModel.loadOrCreateUserData()
+        viewModel.updateView.observe(viewLifecycleOwner, Observer {
+            updateLoadView(it)
+        })
     }
 
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+    }
+
+    private fun updateLoadView(updateStatus: Boolean) {
+        if (updateStatus) {
+            binding.homeLoadingTxt.text = "Done"
+        }
     }
 
 }

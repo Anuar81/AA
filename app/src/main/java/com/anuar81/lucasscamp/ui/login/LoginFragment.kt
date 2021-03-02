@@ -2,21 +2,16 @@ package com.anuar81.lucasscamp.ui.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.anuar81.lucasscamp.R
 import com.anuar81.lucasscamp.databinding.LoginFragmentBinding
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.common.api.ApiException
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -42,7 +37,10 @@ class LoginFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         // TODO: Use the ViewModel
-        binding.loginSignInButton.setOnClickListener { signIn() }
+        binding.loginSignInButton.setOnClickListener { signInOnclick() }
+        viewModel.launchNextFragment.observe(viewLifecycleOwner, Observer {
+            launchHomeFragment(it)
+        })
     }
 
     override fun onStart() {
@@ -57,7 +55,7 @@ class LoginFragment : Fragment() {
         _binding = null
     }
 
-    private fun signIn() {
+    private fun signInOnclick() {
         val signInIntent = viewModel.client.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
@@ -66,7 +64,12 @@ class LoginFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            viewModel.checkGoogleAuthFB(data)
+        }
+    }
+
+    // Esto se llevo al repositorylogin porque es el que lo necesita saber y manejar.
+    /*        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 val account = task.getResult(ApiException::class.java)!!
@@ -103,7 +106,7 @@ class LoginFragment : Fragment() {
 
                 // ...
             }
-    }
+    }*/
 
     private fun launchHomeFragment(currentUser: FirebaseUser?) {
         currentUser?.let {
